@@ -2,6 +2,8 @@
 #include <torch/torch.h>
 #include <RVO/RVO.h>
 #include "Environment.h"
+#include <GL/freeglut.h>
+#include <GL/gl.h>
 
 using namespace std;
 using namespace RVO;
@@ -15,16 +17,21 @@ float time_horizont_obst = 20.0f;
 float radius = 2.0f;
 float max_speed = 1.5f;
 
-int main(int, char**) {
-    
-    int count = 0;
-    Environment* env = new Environment(Agents, timestep, neighbor_dist, max_neig, time_horizont, time_horizont_obst, radius, max_speed );
-    env->make(1);
-    cout << "NAgents: " << env->getNumAgents() << endl;
-    do{
-        env->sample();
-        cout<< env->getAgentPosition(0) << endl;
-        count ++;
-    }while(count < 10);
 
+
+
+
+int main(int argc, char** argv) {
+    
+    // Initializing glut
+    glutInit(&argc, argv);
+    Environment* env = new Environment(Agents, timestep, neighbor_dist, max_neig, time_horizont, time_horizont_obst, radius, max_speed);
+    glutCreateWindow("Lighthouse3D- GLUT Tutorial");
+    env->make(1);
+    //env->render();
+
+    
+    glutMainLoop();
+    return 1;
 }
+

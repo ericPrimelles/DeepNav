@@ -17,9 +17,9 @@ public:
     inline vector<Vector2> getScenarioPositions(){
         for (size_t i = 0; i < n_agents; i++)
         {
-            positions_cir.push_back(200.0f *
-		              RVO::Vector2(std::cos(i * 2.0f * M_PI / 250.0f),
-		                           std::sin(i * 2.0f * M_PI / 250.0f)));
+            positions_cir.push_back( 200.0f *
+		              RVO::Vector2(std::cos(i * 2.0f * M_PI / (float) this->n_agents),
+		                           std::sin(i * 2.0f * M_PI / (float) this->n_agents)));
             
             
         }
@@ -36,6 +36,8 @@ public:
         }
         return goals_cir;
     }
+
+   
 
 private:
 
