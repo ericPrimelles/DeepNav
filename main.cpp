@@ -24,7 +24,9 @@ float max_speed = 1.5f;
 
 
 int main(int argc, char** argv) {
-    
+
+   Environment * env = new Environment(Agents, timestep, neighbor_dist, max_neig, time_horizont, time_horizont_obst, radius, max_speed);
+   env->render(); 
    return 0;
 }
 

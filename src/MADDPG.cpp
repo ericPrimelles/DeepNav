@@ -65,14 +65,14 @@ void MADDPG::loadCheckpoint()
     }
 }
 
-std::vector<torch::Tensor> MADDPG::chooseAction(torch::Tensor obs, bool use_rnd, bool use_net)
+torch::Tensor MADDPG::chooseAction(torch::Tensor obs, bool use_rnd, bool use_net)
 {
-    std::vector<torch::Tensor> actions;
+    torch::Tensor actions = torch::zeros({(int64_t) this->n_agents, 2}, torch::dtype(torch::kFloat32));
     
     for (size_t i = 0; i < this->n_agents; i++)
     {
-
-        actions.push_back(agents[i]->sampleAction(obs[i], use_rnd, use_net));
+        actions[i] = this->agents[i]->sampleAction(obs[i], use_rnd, use_net);
+        
         //std::cout << i << std::endl;
     }
     // std::cout << actions[0].sizes() << endl;
@@ -120,7 +120,7 @@ void MADDPG::Train()
         {
             a.obs = env->getObservation();
             a.actions = this->chooseAction(a.obs);
-            std::cout << env->getAgentPosition(0) << "\n";
+            std::cout << env->getAgentPos(0) << "\n";
             a.rewards = env->step(a.actions);
             a.obs_1 = env->getObservation();
             a.done = env->isDone();
@@ -130,6 +130,7 @@ void MADDPG::Train()
             {
                 std::cout << a.rewards[i].item<float>() << "  ";
             }*/
+            
             std::cout<<"\n";
             step_rewards += torch::mean(a.rewards).item<float>();
             avg_reward = step_rewards / (i + 1);

@@ -36,10 +36,11 @@ public:
     torch::Tensor sample();
     torch::Tensor getObservation();
     void render();
+    void reset();
     void make(size_t scenario);
     bool isDone();
-    inline Vector2 getAgentPosition(size_t i){return sim->getAgentPosition(i);}
-    inline size_t getNumAgents(){return this->sim->getNumAgents();}
+    inline Vector2 getAgentPos(size_t i){return sim->getAgentPosition(i);}
+    inline size_t getNAgents(){return this->sim->getNumAgents();}
     ~Environment();
 
 private:
@@ -52,13 +53,14 @@ private:
     torch::Tensor calculateLocalReward();
     
     //Visualization Methods
-    void InitGL(void);
+    
     
 
     //Parameters
     RVOSimulator * sim;
     float time= 0.0f;
-    size_t n_agents;
+    size_t n_agents, max_neigh;
+    float timestep, neigh_dist, time_horizont, time_horizont_obst, radius, max_speed;
     std::vector<RVO::Vector2> positions, goals, obstacles;
     
     

@@ -23,7 +23,7 @@ public:
            std::string path="/model", size_t batch_size=256,size_t max_memory=100000, size_t k_epchos=10000);
     void saveCheckpoint();
     void loadCheckpoint();
-    std::vector<torch::Tensor> chooseAction(torch::Tensor obs, bool use_rnd = true, bool use_net = true);
+    torch::Tensor chooseAction(torch::Tensor obs, bool use_rnd = true, bool use_net = true);
     void Train();
     void Test(size_t epochs);
 
