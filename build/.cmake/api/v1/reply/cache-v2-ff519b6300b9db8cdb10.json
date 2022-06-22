@@ -1707,7 +1707,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "GLUT_Xi_LIBRARY-NOTFOUND"
+			"value" : "/usr/lib/x86_64-linux-gnu/libXi.so"
 		},
 		{
 			"name" : "GLUT_Xmu_LIBRARY",
@@ -1723,7 +1723,7 @@
 				}
 			],
 			"type" : "FILEPATH",
-			"value" : "GLUT_Xmu_LIBRARY-NOTFOUND"
+			"value" : "/usr/lib/x86_64-linux-gnu/libXmu.so"
 		},
 		{
 			"name" : "GLUT_glut_LIBRARY",

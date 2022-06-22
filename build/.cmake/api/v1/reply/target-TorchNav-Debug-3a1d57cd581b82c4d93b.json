@@ -180,6 +180,14 @@
 				"role" : "libraries"
 			},
 			{
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libXmu.so",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libXi.so",
+				"role" : "libraries"
+			},
+			{
 				"fragment" : "-lRVO",
 				"role" : "libraries"
 			}
