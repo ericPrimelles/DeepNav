@@ -95,7 +95,7 @@ void MADDPG::Train()
         std::cout << "Training" << epochs << "/" << k_epochs << std::endl;
         std::cout << "\n\n\n";
 
-        //env->reset();
+        env->reset();
         //  Colecting some new experiences
         float avg_reward = 0.0f;
         float step_rewards = 0.0f;

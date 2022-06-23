@@ -56,6 +56,7 @@ torch::Tensor Environment::step(torch::Tensor actions)
 
     this->setPrefferedVelocities(actions);
     this->sim->doStep();
+    this->time += this->timestep;
     return this->calculateGlobalReward() + this->calculateLocalReward();
 }
 
@@ -110,7 +111,7 @@ torch::Tensor Environment::calculateGlobalReward()
 
    if(!this->isDone()) return torch::zeros((int64_t)this->getNAgents());
 
-    return torch::full((int64_t)this->getNAgents(), 100.0f - this->sim->getGlobalTime());
+    return torch::full((int64_t)this->getNAgents(), 100.0f - this->getGlobalTime());
 }
 
 torch::Tensor Environment::calculateLocalReward()
@@ -181,10 +182,15 @@ void Environment::render(){
 }
 
 void Environment::reset(){
-    this->sim = new RVOSimulator();
-    this->sim->setAgentDefaults(this->neigh_dist, this->max_neigh, this->time_horizont, this->time_horizont_obst, radius, max_speed);
-    this->setup(this->positions, this->obstacles);
+    for (size_t i = 0; i < this->n_agents; i++)
+    {
+        this->sim->setAgentPosition(i, positions[i]);
+    }
     
+    this->time = 0.0f;
+    cout << this->getAgentPos(0) << endl;
+    this->sample();
+    cout << this->getAgentPos(0) << endl;
     
     
 }

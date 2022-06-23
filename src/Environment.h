@@ -43,6 +43,7 @@ public:
     inline vector<size_t> getObservationSpec(){return {this->n_agents, 4};}
     inline Vector2 getAgentPos(size_t i){return sim->getAgentPosition(i);}
     inline size_t getNAgents(){return this->sim->getNumAgents();}
+    inline float getGlobalTime(){ return this->time;}
     ~Environment();
 
 private:
