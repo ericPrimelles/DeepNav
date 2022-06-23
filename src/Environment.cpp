@@ -188,9 +188,8 @@ void Environment::reset(){
     }
     
     this->time = 0.0f;
-    cout << this->getAgentPos(0) << endl;
+    
     this->sample();
-    cout << this->getAgentPos(0) << endl;
     
     
 }

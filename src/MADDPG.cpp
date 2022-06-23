@@ -92,34 +92,33 @@ void MADDPG::Train()
     float avg_reward = 0.0f;
     for (size_t epochs = 0; epochs < k_epochs; epochs++)
     {
-        std::cout << "Training" << epochs << "/" << k_epochs << std::endl;
+        std::cout << "Training" << std::endl;
         std::cout << "\n\n\n";
 
         env->reset();
         //  Colecting some new experiences
         float avg_reward = 0.0f;
         float step_rewards = 0.0f;
+
+        
         for (size_t i = 0; i < T && !this->env->isDone(); i++)
         {
-            cout<< "Locol" << endl;
+            cout << "Epoch: " << epochs << "/" << k_epochs << " ";
+            std::cout << "TimeStep:" << i << "/" << T << " Rewards:" << "    " << avg_reward << std::endl;
             a.obs = env->getObservation();
             a.actions = this->chooseAction(a.obs);
-            std::cout << env->getAgentPos(0) << "\n";
             a.rewards = env->step(a.actions);
-            cout << env->getAgentPos(0);
             a.obs_1 = env->getObservation();
             a.done = env->isDone();
             this->memory->storeTransition(a);
 
-            /* for (size_t i = 0; i < 8; i++)
-             {
-                 std::cout << a.rewards[i].item<float>() << "  ";
-             }*/
-            this->learn(&traj_a_loss, &traj_q_loss);
-            std::cout << "\n";
+            sampledTrans = this->memory->sampleBuffer();
+            this->learn(sampledTrans);
+            
+            
+            
             step_rewards += torch::mean(a.rewards).item<float>();
             avg_reward = step_rewards / (i + 1);
-            std::cout << "TimeStep:" << i << "/" << T << " Rewards:" << step_rewards << "    " << avg_reward << std::endl;
             sampledTrans = memory->sampleBuffer();
         }
         std::ofstream write;
@@ -167,7 +166,7 @@ void MADDPG::visualize()
     std::cout << std::endl;
 }
 
-void MADDPG::learn(float* traj_a_loss, float* traj_q_loss)
+void MADDPG::learn(vector<ReplayBuffer::Transition> sampledTrans)
 {
 
     if (!this->memory->ready())
@@ -175,7 +174,6 @@ void MADDPG::learn(float* traj_a_loss, float* traj_q_loss)
         return;
     }
 
-    vector<ReplayBuffer::Transition> sampledTrans;
     // Cut from here
     for (size_t agent = 0; agent < this->n_agents; agent++)
     {
