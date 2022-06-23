@@ -31,7 +31,10 @@ public:
 
 private:
 
+    //Private Methods
     void visualize();
+    void learn(float*, float*);
+    // Parameters
     int64_t Ain_dims, Aout_dims, Cin_dims, Cout_dims;
     size_t scenario, batch_size, n_agents, T, max_memory, k_epochs;
     float alpha, beta, fc1, fc2, gamma, tau;

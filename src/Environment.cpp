@@ -116,9 +116,9 @@ torch::Tensor Environment::calculateGlobalReward()
 torch::Tensor Environment::calculateLocalReward()
 
 {
-    std::vector<float> rewards(this->getNAgents());
+    torch::Tensor rewards = torch::zeros({(int64_t) this->n_agents}, torch::dtype(torch::kFloat32));
     float r_goal = 0, r_coll_a = 0, r_coll_obs = 0, r_cong = 0;
-    int64_t size = rewards.size();
+    
     float abs = 0;
     auto calcDist = [](RVO::Vector2 x, RVO::Vector2 y) -> float
 
@@ -148,8 +148,12 @@ torch::Tensor Environment::calculateLocalReward()
         //std::cout << "{ " << r_goal << ", " << r_coll_a << " ," << " ," << r_coll_obs << ", " << r_cong << "}\n";
         
         }
-
-    return torch::from_blob(rewards.data(), {size}, torch::dtype(torch::kFloat32));
+    
+    {
+        /* code */
+    }
+    
+    return rewards;
 }
 
 
