@@ -5,7 +5,7 @@
 using std::cout, std::endl;
 
 MADDPG::MADDPG(Environment *sim, int64_t Ain_dims, int64_t Aout_dims, std::vector<int64_t> Ah_dims, int64_t Cin_dims, int64_t Cout_dims, std::vector<int64_t> Ch_dims,
-               size_t scenario, float alpha, float beta, size_t fc1, size_t fc2, size_t T, float gamma, float tau,
+               size_t scenario, float alpha, float beta, size_t fc1, size_t fc2, size_t T, float gamma, float tau, float ou_sigma,
                std::string path)
 {
     this->env = sim;
@@ -19,11 +19,12 @@ MADDPG::MADDPG(Environment *sim, int64_t Ain_dims, int64_t Aout_dims, std::vecto
     this->beta = beta;
     this->fc1 = fc1;
     this->fc2 = fc2;
+    this->ou_sigma = ou_sigma;
     this->gamma = gamma;
     this->tau = tau;
     this->path = path;
-   
-    //this->agents.reserve(this->n_agents);
+
+    // this->agents.reserve(this->n_agents);
     cout << n_agents << endl;
     for (size_t i = 0; i < n_agents; i++)
     {
@@ -66,22 +67,27 @@ torch::Tensor MADDPG::chooseAction(torch::Tensor obs, bool use_rnd, bool use_net
     cout << "From MADDPG" << this->n_agents << endl;
     torch::Tensor actions = torch::zeros({(int64_t)this->n_agents, 2}, torch::dtype(torch::kFloat32));
 
-    for (size_t i = 0; i < this->n_agents; i++)
+    if (use_net)
     {
-        actions[i] = this->agents[i]->sampleAction(obs[i], use_rnd, use_net);
+        for (size_t i = 0; i < this->n_agents; i++)
+        {
+            actions[i] = this->agents[i]->sampleAction(obs[i], use_rnd, use_net);
 
-        // std::cout << i << std::endl;
+            // std::cout << i << std::endl;
+        }
+    }
+    if (use_rnd)
+    {
+        actions += this->ou_sigma * torch::rand(actions.sizes());
     }
     // std::cout << actions[0].sizes() << endl;
     return actions;
 }
 
-void MADDPG::Train( vector<ReplayBuffer::Transition> sampledTrans)
+void MADDPG::Train(vector<ReplayBuffer::Transition> sampledTrans)
 {
 
     this->learn(sampledTrans);
-    
-   
 }
 
 void MADDPG::Test(size_t epochs)
@@ -114,7 +120,6 @@ void MADDPG::visualize()
 void MADDPG::learn(vector<ReplayBuffer::Transition> sampledTrans)
 {
 
-   
     // Cut from here
     for (size_t agent = 0; agent < this->n_agents; agent++)
     {

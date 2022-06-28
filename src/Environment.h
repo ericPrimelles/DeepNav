@@ -44,6 +44,7 @@ public:
     inline Vector2 getAgentPos(size_t i){return sim->getAgentPosition(i);}
     inline size_t getNAgents(){return this->sim->getNumAgents();}
     inline float getGlobalTime(){ return this->time;}
+    inline Vector2 getAgentPrefVel(size_t i){return this->sim->getAgentPrefVelocity(i);}
     ~Environment();
 
 private:
