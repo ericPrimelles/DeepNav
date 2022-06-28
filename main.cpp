@@ -31,9 +31,13 @@ float avg_reward = 0.0f;
 float step_rewards = 0.0f;
 Environment *env = new Environment(Agents, timestep, neighbor_dist, max_neig, time_horizont, time_horizont_obst, radius, max_speed);
 
+
+// Execution parameters
+bool train = true;
 // Exec functions
 
 void Train(Environment *env, MADDPG program);
+
 
 // Visualization func
 void InitGL(void);
@@ -56,8 +60,8 @@ int main(int argc, char **argv)
    glutDisplayFunc(updateVisualization);
    glutReshapeFunc(reshape);
    glutIdleFunc(idle);
-   Train(env, program);
 
+   Train(env, program);
    return 0;
 }
 
