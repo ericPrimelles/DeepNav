@@ -4,11 +4,19 @@ DeepNav is an RL application focused in the global path planning in MA navigatio
 
 ## Preequisites
 
-RVO library installation: It's important to download, build and install the latest version of RVO.
+-RVO library installation: It's important to download, build and install the latest version of RVO.
   - [RVO Download](https://gamma.cs.unc.edu/RVO2/downloads/)
   - [RVO Building](https://gamma.cs.unc.edu/RVO2/documentation/2.0/compiling.html)
 
-[LibTorch installation](https://pytorch.org/cppdocs/installing.html).
+-[LibTorch installation](https://pytorch.org/cppdocs/installing.html).
+
+- OpenGL installation:
+
+```
+    sudo apt-get install freeglut3-dev
+
+    sudo apt-get install mesa-utils
+```
 
 ## Instructions
 
