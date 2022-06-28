@@ -56,15 +56,16 @@ private:
     torch::Tensor calculateLocalReward();
     
     //Visualization Methods
-    
-    
+   
 
     //Parameters
     RVOSimulator * sim;
+    size_t scenario = 0, sidesize=25;
     float time= 0.0f;
     size_t n_agents, max_neigh;
     float timestep, neigh_dist, time_horizont, time_horizont_obst, radius, max_speed;
     std::vector<RVO::Vector2> positions, goals, obstacles;
+
     
     
 };

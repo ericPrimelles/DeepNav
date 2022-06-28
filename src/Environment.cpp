@@ -1,8 +1,6 @@
 #include "Environment.h"
 #include "Circle.h"
 
-
-
 Environment::Environment(size_t n_agents, float time_step, float neighbor_dists, size_t max_neig, float time_horizon,
                          float time_horizon_obst, float radius, float max_speed)
 {
@@ -11,15 +9,22 @@ Environment::Environment(size_t n_agents, float time_step, float neighbor_dists,
     this->sim = new RVOSimulator();
     this->sim->setTimeStep(0.25f);
     this->sim->setAgentDefaults(neighbor_dists, max_neig, time_horizon, time_horizon_obst, radius, max_speed);
-    this->timestep = timestep; this->neigh_dist = neigh_dist; this->max_neigh = max_neig, this->time_horizont = time_horizon;
-    this->time_horizont_obst = time_horizon_obst; this->radius = radius; this->max_speed = max_speed;
-    
+    this->timestep = timestep;
+    this->neigh_dist = neigh_dist;
+    this->max_neigh = max_neig, this->time_horizont = time_horizon;
+    this->time_horizont_obst = time_horizon_obst;
+    this->radius = radius;
+    this->max_speed = max_speed;
 }
 
-void Environment::make(size_t scenario)
+
+
+void Environment::make(size_t scenario_op)
 {
-    this->setupScenario(scenario);
+    this->scenario = scenario_op;
+    this->setupScenario(scenario_op);
     this->setup(this->positions, this->obstacles);
+    
 }
 
 Environment::~Environment()
@@ -89,27 +94,23 @@ torch::Tensor Environment::sample()
     return this->step(actions);
 }
 
-
-
-
-bool Environment::isDone(){
+bool Environment::isDone()
+{
     for (size_t i = 0; i < this->n_agents; i++)
     {
-        if (RVO::absSq(this->getAgentPos(i) - goals[i]) > this->sim->getAgentRadius(i) * this->sim->getAgentRadius(i)){
+        if (RVO::absSq(this->getAgentPos(i) - goals[i]) > this->sim->getAgentRadius(i) * this->sim->getAgentRadius(i))
+        {
             return false;
         }
-        
     }
     return true;
-    
 }
 
 torch::Tensor Environment::calculateGlobalReward()
 {
-    
-    
 
-   if(!this->isDone()) return torch::zeros((int64_t)this->getNAgents());
+    if (!this->isDone())
+        return torch::zeros((int64_t)this->getNAgents());
 
     return torch::full((int64_t)this->getNAgents(), 100.0f - this->getGlobalTime());
 }
@@ -117,9 +118,9 @@ torch::Tensor Environment::calculateGlobalReward()
 torch::Tensor Environment::calculateLocalReward()
 
 {
-    torch::Tensor rewards = torch::zeros({(int64_t) this->n_agents}, torch::dtype(torch::kFloat32));
+    torch::Tensor rewards = torch::zeros({(int64_t)this->n_agents}, torch::dtype(torch::kFloat32));
     float r_goal = 0, r_coll_a = 0, r_coll_obs = 0, r_cong = 0;
-    
+
     float abs = 0;
     auto calcDist = [](RVO::Vector2 x, RVO::Vector2 y) -> float
 
@@ -145,23 +146,21 @@ torch::Tensor Environment::calculateLocalReward()
         }
 
         rewards[i] = r_goal + r_coll_a + r_coll_obs + r_cong;
-        
-        //std::cout << "{ " << r_goal << ", " << r_coll_a << " ," << " ," << r_coll_obs << ", " << r_cong << "}\n";
-        
-        }
-    
+
+        // std::cout << "{ " << r_goal << ", " << r_coll_a << " ," << " ," << r_coll_obs << ", " << r_cong << "}\n";
+    }
+
     {
         /* code */
     }
-    
+
     return rewards;
 }
-
 
 torch::Tensor Environment::getObservation()
 {
     int64_t nAgents = this->getNAgents();
-    torch::Tensor observation = torch::zeros({(int64_t) this->n_agents, 4}, torch::dtype(torch::kFloat32));
+    torch::Tensor observation = torch::zeros({(int64_t)this->n_agents, 4}, torch::dtype(torch::kFloat32));
     std::vector<std::vector<float>> data;
     int64_t size;
 
@@ -169,7 +168,7 @@ torch::Tensor Environment::getObservation()
     {
         data.push_back({this->getAgentPos(i).x(), this->getAgentPos(i).y(), this->sim->getAgentPrefVelocity(i).x(), this->sim->getAgentPrefVelocity(i).y()});
         size = data[i].size();
-         
+
         observation[i] = torch::from_blob(data[i].data(), {size});
     }
     return observation;
@@ -177,19 +176,17 @@ torch::Tensor Environment::getObservation()
 
 // Visualization
 
-void Environment::render(){
-   
+void Environment::render()
+{
+    
 }
 
-void Environment::reset(){
+void Environment::reset()
+{
     for (size_t i = 0; i < this->n_agents; i++)
     {
         this->sim->setAgentPosition(i, positions[i]);
     }
-    
+
     this->time = 0.0f;
-    
-    this->sample();
-    
-    
 }

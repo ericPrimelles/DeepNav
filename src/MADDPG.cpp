@@ -6,14 +6,13 @@ using std::cout, std::endl;
 
 MADDPG::MADDPG(Environment *sim, int64_t Ain_dims, int64_t Aout_dims, std::vector<int64_t> Ah_dims, int64_t Cin_dims, int64_t Cout_dims, std::vector<int64_t> Ch_dims,
                size_t scenario, float alpha, float beta, size_t fc1, size_t fc2, size_t T, float gamma, float tau,
-               std::string path, size_t batch_size, size_t max_memory, size_t k_epchos)
+               std::string path)
 {
     this->env = sim;
     this->Ain_dims = Ain_dims;
     this->Aout_dims = Aout_dims;
     this->Cin_dims = Cin_dims;
     this->Cout_dims = Cout_dims;
-    this->batch_size = batch_size;
     this->n_agents = this->env->getNAgents();
     this->scenario = scenario;
     this->alpha = alpha;
@@ -23,12 +22,9 @@ MADDPG::MADDPG(Environment *sim, int64_t Ain_dims, int64_t Aout_dims, std::vecto
     this->gamma = gamma;
     this->tau = tau;
     this->path = path;
-    this->T = T;
-    this->max_memory = max_memory;
-    this->k_epochs = k_epchos;
-
-    this->agents.reserve(this->n_agents);
-    this->memory = new ReplayBuffer::Buffer(max_memory, batch_size);
+   
+    //this->agents.reserve(this->n_agents);
+    cout << n_agents << endl;
     for (size_t i = 0; i < n_agents; i++)
     {
         this->agents.push_back(new DDPGAgent(this->Ain_dims, this->Aout_dims, Ah_dims, this->Cin_dims, this->Cout_dims, Ch_dims,
@@ -67,6 +63,7 @@ void MADDPG::loadCheckpoint()
 
 torch::Tensor MADDPG::chooseAction(torch::Tensor obs, bool use_rnd, bool use_net)
 {
+    cout << "From MADDPG" << this->n_agents << endl;
     torch::Tensor actions = torch::zeros({(int64_t)this->n_agents, 2}, torch::dtype(torch::kFloat32));
 
     for (size_t i = 0; i < this->n_agents; i++)
@@ -79,70 +76,18 @@ torch::Tensor MADDPG::chooseAction(torch::Tensor obs, bool use_rnd, bool use_net
     return actions;
 }
 
-void MADDPG::Train()
+void MADDPG::Train( vector<ReplayBuffer::Transition> sampledTrans)
 {
 
-    // Creating a base memory
-    ReplayBuffer::Transition a;
-    std::vector<ReplayBuffer::Transition> sampledTrans;
-    float traj_reward = 0.0f;
-    float traj_q_loss = 0.0f;
-    float traj_a_loss = 0.0f;
-   // Starting training
-    float avg_reward = 0.0f;
-    for (size_t epochs = 0; epochs < k_epochs; epochs++)
-    {
-        std::cout << "Training" << std::endl;
-        std::cout << "\n\n\n";
-
-        env->reset();
-        //  Colecting some new experiences
-        float avg_reward = 0.0f;
-        float step_rewards = 0.0f;
-
-        
-        for (size_t i = 0; i < T && !this->env->isDone(); i++)
-        {
-            cout << "Epoch: " << epochs << "/" << k_epochs << " ";
-            std::cout << "TimeStep:" << i << "/" << T << " Rewards:" << "    " << avg_reward << std::endl;
-            a.obs = env->getObservation();
-            a.actions = this->chooseAction(a.obs);
-            a.rewards = env->step(a.actions);
-            a.obs_1 = env->getObservation();
-            a.done = env->isDone();
-            this->memory->storeTransition(a);
-
-            sampledTrans = this->memory->sampleBuffer();
-            this->learn(sampledTrans);
-            
-            
-            
-            step_rewards += torch::mean(a.rewards).item<float>();
-            avg_reward = step_rewards / (i + 1);
-            sampledTrans = memory->sampleBuffer();
-        }
-        std::ofstream write;
-        write.open("rewards.txt", std::ios::out | std::ios::app);
-        if (write.is_open())
-        {
-            write << avg_reward << "\n";
-        }
-
-        write.close();
-
-        if (epochs % 10 == 0)
-        {
-            std::cout << "Saving..." << std::endl;
-            this->saveCheckpoint();
-        }
-        // this->visualize();
-    }
+    this->learn(sampledTrans);
+    
+   
 }
 
 void MADDPG::Test(size_t epochs)
 {
 
-    std::cout << "Testing" << std::endl;
+    /*std::cout << "Testing" << std::endl;
     this->loadCheckpoint();
     for (size_t i = 0; i < epochs; i++)
     {
@@ -153,7 +98,7 @@ void MADDPG::Test(size_t epochs)
             this->env->step(this->chooseAction(this->env->getObservation(), false, true));
             // this->chooseAction(this->env->getObservation());
         }
-    }
+    }*/
 }
 
 void MADDPG::visualize()
@@ -169,11 +114,7 @@ void MADDPG::visualize()
 void MADDPG::learn(vector<ReplayBuffer::Transition> sampledTrans)
 {
 
-    if (!this->memory->ready())
-    {
-        return;
-    }
-
+   
     // Cut from here
     for (size_t agent = 0; agent < this->n_agents; agent++)
     {
